@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouza Map Download</title>
+    <style>
+        body {
+            background-color: #1a1a1e;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .breadcrumb {
+            background-color: #26262b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border: 1px solid #3a3a40;
+        }
+        .breadcrumb a {
+            color: #9eccff;
+            text-decoration: none;
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #3a3a40;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #212125;
+            padding: 12px;
+            border-bottom: 1px solid #3a3a40;
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+        .pdf-icon {
+            background-color: #e54d42;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 5px;
+            border-radius: 3px;
+        }
+        .file-name {
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .download-btn {
+            color: #aaaaaa;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 0 5px;
+        }
+        .download-btn:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ব্রেডক্রাম্ব নেভিগেশন -->
+    <div class="breadcrumb">
+        <a href="#">Home</a> &gt; <a href="#">আপনার জেলা</a> &gt; <a href="#">উপজেলা</a> &gt; <a href="#">মৌজা</a> &gt; <b>রেকর্ড টাইপ</b>
+    </div>
+
+    <!-- ফাইল লিস্ট -->
+    <ul class="file-list" id="fileContainer">
+        <!-- ফাইলগুলো স্ক্রিপ্ট দিয়ে লোড হবে -->
+    </ul>
+</div>
+
+<script>
+    // আপনার গিটহাব ইউজারনেম, রিপোজিটরি নাম এবং ফোল্ডার পাথ দিন
+    const username = 'm1jonycale-lab';
+    const repo = 'mouza-map-web'; // আপনার দেওয়া নতুন রিপোজিটরি নাম
+    const folderPath = 'আপনার-পিডিএফ-ফোল্ডার-পাথ'; // এখানে আপনার PDF রাখার ফোল্ডার পাথ দিবেন, যেমন: PDF_Files
+
+    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${folderPath}`;
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('fileContainer');
+            container.innerHTML = '';
+
+            data.forEach(file => {
+                if (file.name.endsWith('.pdf')) {
+                    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    const li = document.createElement('li');
+                    li.className = 'file-item';
+                    li.innerHTML = `
+                        <div class="file-info">
+                            <span class="pdf-icon">PDF</span>
+                            <span class="file-name">${file.name} (${sizeMB} MB)</span>
+                        </div>
+                        <a href="${file.download_url}" class="download-btn" download>📥</a>
+                    `;
+                    container.appendChild(li);
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching files:', error));
+</script>
+
+</body>
+</html>
