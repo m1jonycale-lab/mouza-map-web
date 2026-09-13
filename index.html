@@ -5,124 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mouza Map Download</title>
     <style>
-        body {
-            background-color: #1a1a1e;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 15px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .breadcrumb {
-            background-color: #26262b;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            border: 1px solid #3a3a40;
-        }
-        .breadcrumb a {
-            color: #9eccff;
-            text-decoration: none;
-        }
-        .file-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            border: 1px solid #3a3a40;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #212125;
-            padding: 12px;
-            border-bottom: 1px solid #3a3a40;
-        }
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            overflow: hidden;
-        }
-        .pdf-icon {
-            background-color: #e54d42;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 3px 5px;
-            border-radius: 3px;
-        }
-        .file-name {
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .download-btn {
-            color: #aaaaaa;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 0 5px;
-        }
-        .download-btn:hover {
-            color: #ffffff;
-        }
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #1a1a1e; color: #ffffff; margin: 0; padding: 15px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #26262b; border-radius: 8px; border: 1px solid #38383e; overflow: hidden; }
+        .header { background-color: #2b2b30; padding: 12px 15px; font-weight: bold; border-bottom: 1px solid #38383e; font-size: 16px; word-break: break-all; }
+        .header a { color: #4ba3e3; text-decoration: none; }
+        .header a:hover { text-decoration: underline; }
+        .list-group { list-style: none; margin: 0; padding: 0; }
+        .list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #333338; background-color: #26262b; text-decoration: none; color: #fff; cursor: pointer; }
+        .list-item:hover { background-color: #313137; }
+        .item-left { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; width: 100%; }
+        .icon { font-size: 18px; }
+        .item-name { font-size: 15px; color: #e1e1e1; font-weight: 500; }
+        .badge { background-color: #38383e; color: #aaa; font-size: 11px; padding: 3px 6px; border-radius: 4px; white-space: nowrap; }
+        .footer-count { padding: 10px 15px; text-align: center; color: #888; font-size: 13px; background-color: #1f1f23; }
+        .btn-download { background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 13px; white-space: nowrap; }
+        .btn-download:hover { background-color: #218838; }
+        .loading { padding: 20px; text-align: center; color: #aaa; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- ব্রেডক্রাম্ব নেভিগেশন -->
-    <div class="breadcrumb">
-        <a href="#">Home</a> &gt; <a href="#">আপনার জেলা</a> &gt; <a href="#">উপজেলা</a> &gt; <a href="#">মৌজা</a> &gt; <b>রেকর্ড টাইপ</b>
+    <div class="container">
+        <div class="header" id="breadcrumb">Home</div>
+        <div id="file-list" class="list-group">
+            <div class="loading">লোডিং হচ্ছে...</div>
+        </div>
+        <div class="footer-count" id="item-count">Total 0 items</div>
     </div>
 
-    <!-- ফাইল লিস্ট -->
-    <ul class="file-list" id="fileContainer">
-        <!-- ফাইলগুলো স্ক্রিপ্ট দিয়ে লোড হবে -->
-    </ul>
-</div>
-
 <script>
-    // আপনার গিটহাব ইউজারনেম, রিপোজিটরি নাম এবং ফোল্ডার পাথ দিন
     const username = 'm1jonycale-lab';
-    const repo = 'mouza-map-web'; // আপনার দেওয়া নতুন রিপোজিটরি নাম
-    const folderPath = 'Rajshahi/Joypurhat/Akkelpur/RS';
+    const repo = 'mouza-map-web';
 
-    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${folderPath}`;
+    function getPathFromUrl() {
+        const hash = window.location.hash;
+        if (!hash || hash === '#/' || hash === '#') return '';
+        return decodeURIComponent(hash.replace('#/', ''));
+    }
 
-    fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            const container = document.getElementById('fileContainer');
-            container.innerHTML = '';
-
-            data.forEach(file => {
-                if (file.name.endsWith('.pdf')) {
-                    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                    const li = document.createElement('li');
-                    li.className = 'file-item';
-                    li.innerHTML = `
-                        <div class="file-info">
-                            <span class="pdf-icon">PDF</span>
-                            <span class="file-name">${file.name} (${sizeMB} MB)</span>
-                        </div>
-                        <a href="${file.download_url}" class="download-btn" download>📥</a>
-                    `;
-                    container.appendChild(li);
-                }
+    async function loadDirectory(path = '') {
+        const listContainer = document.getElementById('file-list');
+        const breadcrumbContainer = document.getElementById('breadcrumb');
+        const itemCountContainer = document.getElementById('item-count');
+        
+        listContainer.innerHTML = '<div class="loading">ফোল্ডার লোড হচ্ছে...</div>';
+        
+        // Update Breadcrumb
+        let breadcrumbHTML = '<a href="#/">Home</a>';
+        if (path) {
+            const parts = path.split('/');
+            let currentAccumulatedPath = '';
+            parts.forEach((part, index) => {
+                currentAccumulatedPath += (index === 0 ? '' : '/') + part;
+                breadcrumbHTML += ` &gt; <a href="#/${currentAccumulatedPath}">${part}</a>`;
             });
-        })
-        .catch(error => console.error('Error fetching files:', error));
+        }
+        breadcrumbContainer.innerHTML = breadcrumbHTML;
+
+        const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('Network error');
+            const data = await response.json();
+
+            listContainer.innerHTML = '';
+            let count = 0;
+
+            if (Array.isArray(data)) {
+                // Sort: Folders first, then files
+                data.sort((a, b) => (b.type === 'dir' ? 1 : 0) - (a.type === 'dir' ? 1 : 0));
+
+                data.forEach(item => {
+                    // Ignore index.html and hidden files
+                    if (item.name === 'index.html' || item.name.startsWith('.')) return;
+
+                    count++;
+                    const row = document.createElement('div');
+                    row.className = 'list-item';
+
+                    if (item.type === 'dir') {
+                        row.innerHTML = `
+                            <a href="#/${item.path}" class="item-left">
+                                <span class="icon">📁</span>
+                                <span class="item-name">${item.name}</span>
+                            </a>
+                        `;
+                    } else if (item.type === 'file') {
+                        const sizeMB = (item.size / (1024 * 1024)).toFixed(2);
+                        row.innerHTML = `
+                            <div class="item-left">
+                                <span class="icon">📄</span>
+                                <span class="item-name">${item.name}</span>
+                            </div>
+                            <span class="badge" style="margin-right:8px;">${sizeMB} MB</span>
+                            <a href="${item.download_url}" class="btn-download" download>Download</a>
+                        `;
+                    }
+                    listContainer.appendChild(row);
+                });
+
+                itemCountContainer.innerText = `Total ${count} items`;
+            } else {
+                listContainer.innerHTML = '<div class="loading">কোনো তথ্য পাওয়া যায়নি।</div>';
+            }
+        } catch (error) {
+            console.error(error);
+            listContainer.innerHTML = '<div class="loading">ফাইল বা ফোল্ডার লোড করতে ব্যর্থ হয়েছে।</div>';
+        }
+    }
+
+    // Handle Hash Navigation
+    window.addEventListener('hashchange', () => {
+        loadDirectory(getPathFromUrl());
+    });
+
+    // Initial Load
+    loadDirectory(getPathFromUrl());
 </script>
 
 </body>
